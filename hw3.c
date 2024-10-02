@@ -80,8 +80,7 @@ void fullprint(int** grid, int** lastgrid, int rows, int cols, int gen){
 
 // Randomizes the grid with 0s or 1s to create a random initial state
 int** genzero(int** array, int rows, int cols){
-  //unsigned int seed = time(NULL);
-  unsigned int seed = 4;
+  unsigned int seed = time(NULL);
   int i,j;
 
   for (i = 1; i < rows - 1; i++)
@@ -237,6 +236,7 @@ int main(int argc, char **argv) {
       // Checks stagnationcheck boolean first to ensure function is not run if false
       // Saves some time
       if ((stagnationcheck) && (!checkforchange(grid, lastgrid, ROWS, COLS))){
+        printf("Breaking at generation %i", gen);
         break;
       }
     }
