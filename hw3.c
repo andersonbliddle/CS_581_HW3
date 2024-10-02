@@ -13,6 +13,7 @@
 #include <sys/time.h>
 #include <time.h> 
 #include <omp.h>
+#include <string.h>
 
 
 // Dynamically allocate a 2D array of integers
@@ -188,10 +189,12 @@ int main(int argc, char **argv) {
     int MAX_GEN     = atoi(argv[2]);
     // Getting number of threads for openmp execution
     int num_threads = atoi(argv[3]);
-    // Output file
-    char * output_file  = argv[4];
+    // Output file and directory (format output_N_N_gen_threads.txt)
+    char output_file[200];
+    sprintf(output_file, "%s/output%s_%s_%s.txt", argv[4], argv[1], argv[2], argv[3]);
     // Boolean for turning on and off stagnation check
     int stagnationcheck = atoi(argv[5]);
+
 
     if (!((0 <= ROWS) && (ROWS <= 1000000)) || (!((0 <= COLS) && (COLS <= 1000000)))){
         printf("Dimensions must be between 0 and 1,000,000\n");
@@ -236,7 +239,7 @@ int main(int argc, char **argv) {
       // Checks stagnationcheck boolean first to ensure function is not run if false
       // Saves some time
       if ((stagnationcheck) && (!checkforchange(grid, lastgrid, ROWS, COLS))){
-        printf("Breaking at generation %i", gen);
+        printf("Breaking at generation %i\n", gen);
         break;
       }
     }
