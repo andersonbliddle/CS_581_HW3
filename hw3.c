@@ -3,15 +3,16 @@
  Email: abliddle@crimson.ua.edu
  Course Section: CS 581
  Homework # 1
- Instructions to compile the program: gcc -O hw1.c -o hw1 -O3
- Instructions to run the program: ./hw1 <dimensions> <max_generations> <stagnationcheck boolean 1 or 0>
- Please use this format for testing: ./hw1 1000 1000 0
+ Instructions to compile the program: gcc -O hw3.c -o hw3 -O3
+ Instructions to run the program: ./hw3 <dimensions> <max_generations> <stagnationcheck boolean 1 or 0>
+ Please use this format for testing: ./hw3 1000 1000 0
  GITHUB LINK - https://github.com/andersonbliddle/Fall2024_CS581_HW2
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h> 
+#include <omp.h>
 
 
 // Dynamically allocate a 2D array of integers
@@ -79,7 +80,8 @@ void fullprint(int** grid, int** lastgrid, int rows, int cols, int gen){
 
 // Randomizes the grid with 0s or 1s to create a random initial state
 int** genzero(int** array, int rows, int cols){
-  unsigned int seed = time(NULL);
+  //unsigned int seed = time(NULL);
+  unsigned int seed = 4;
   int i,j;
 
   for (i = 1; i < rows - 1; i++)
@@ -90,8 +92,14 @@ int** genzero(int** array, int rows, int cols){
 }
 
 // Generation function that processes the previous grid and creates the new grid based on neighbor values
-int** generation(int** grid, int** lastgrid, int rows, int cols){
+int** generation(int** grid, int** lastgrid, int rows, int cols, int num_threads){
   int i, j, neighbors;
+
+  // Settings for openMP parallelization for the generation for loop
+  #pragma omp parallel for num_threads(num_threads) \
+      default (none) \
+      private (neighbors, i, j) \
+      shared (grid, lastgrid, rows, cols)
 
   // Iterate through the arrays, checking the previous grid and updating values for new grid
   for (i = 1; i < rows - 1; i++){
@@ -150,19 +158,41 @@ int checkforchange(int** grid, int** lastgrid, int rows, int cols){
     return 0; // Iterated through all cells and found no change
 }
 
+void outputtofile(char *output_file, int** grid, int rows, int cols){
+    FILE *file = fopen(output_file, "w");
+    int i,j;
+  
+    for (i = 1; i < rows - 1; i++) {
+        for (j = 1; j < cols - 1; j++)
+          if (grid[i][j]){
+            fprintf(file, "%i ",grid[i][j]);
+          }
+          else{
+            fprintf(file, "%i ", grid[i][j]);
+          }
+        fprintf(file, "\n");
+      }
+}
+
 
 int main(int argc, char **argv) {
 
-    if (argc != 4) {
-        printf("Usage: %s <dimensions> <max_generations> <stagnationcheck boolean 1 or 0>\n", argv[0]);
+    if (argc != 6) {
+        printf("Usage: %s <dimensions (int)> <max_generations (int)> <num_threads (int)> <output file (string)> <stagnationcheck (boolean 1 or 0)>\n", argv[0]);
         exit(-1);
     }
 
     // Getting the command line arguments
     // Rows and cols are increased by 2, adding "ghost" cells to the boundaries
-    int ROWS = atoi(argv[1]) + 2;
-    int COLS = atoi(argv[1]) + 2;
-    int MAX_GEN = atoi(argv[2]);
+    int ROWS        = atoi(argv[1]) + 2;
+    int COLS        = atoi(argv[1]) + 2;
+    int MAX_GEN     = atoi(argv[2]);
+    // Getting number of threads for openmp execution
+    int num_threads = atoi(argv[3]);
+    // Output file
+    char * output_file  = argv[4];
+    // Boolean for turning on and off stagnation check
+    int stagnationcheck = atoi(argv[5]);
 
     if (!((0 <= ROWS) && (ROWS <= 1000000)) || (!((0 <= COLS) && (COLS <= 1000000)))){
         printf("Dimensions must be between 0 and 1,000,000\n");
@@ -171,9 +201,6 @@ int main(int argc, char **argv) {
 
     // Doubles to hold start and end time for benchmarking
     double starttime, endtime;
-
-    // Boolean for turning on and off stagnation check
-    int stagnationcheck = atoi(argv[3]);
 
     // Allocating arrays and temp value for swapping
     int** grid          = allocarray(ROWS, COLS);
@@ -202,7 +229,7 @@ int main(int argc, char **argv) {
       grid = temp;
 
       // Updating grid based on cell values
-      grid = generation(grid, lastgrid, ROWS, COLS);
+      grid = generation(grid, lastgrid, ROWS, COLS, num_threads);
 
       // fullprint(grid, lastgrid, ROWS, COLS, gen);
 
@@ -217,6 +244,8 @@ int main(int argc, char **argv) {
     // Getting endtime and getting benchmarks
     endtime = gettime();
     printf("Time taken = %lf seconds\n", endtime-starttime);
+
+    outputtofile(output_file, grid, ROWS, COLS);
 
     // Freeing arrays
     destroyarray(grid, ROWS);
