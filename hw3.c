@@ -96,7 +96,7 @@ int** generation(int** grid, int** lastgrid, int rows, int cols, int num_threads
   int i, j, neighbors;
 
   // Settings for openMP parallelization for the generation for loop
-  #pragma omp parallel for num_threads(num_threads) \
+  #pragma omp parallel for \
       default (none) \
       private (neighbors, i, j) \
       shared (grid, lastgrid, rows, cols)
@@ -195,6 +195,8 @@ int main(int argc, char **argv) {
     // Boolean for turning on and off stagnation check
     int stagnationcheck = atoi(argv[5]);
 
+    // Creating threads for later use
+    #pragma omp parallel num_threads(num_threads)
 
     if (!((0 <= ROWS) && (ROWS <= 1000000)) || (!((0 <= COLS) && (COLS <= 1000000)))){
         printf("Dimensions must be between 0 and 1,000,000\n");
