@@ -196,7 +196,8 @@ int main(int argc, char **argv) {
     int stagnationcheck = atoi(argv[5]);
 
     // Creating threads for later use
-    #pragma omp parallel num_threads(num_threads)
+    omp_set_num_threads(num_threads);
+    #pragma omp parallel
 
     if (!((0 <= ROWS) && (ROWS <= 1000000)) || (!((0 <= COLS) && (COLS <= 1000000)))){
         printf("Dimensions must be between 0 and 1,000,000\n");
