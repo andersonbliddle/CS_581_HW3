@@ -2,11 +2,15 @@
  Name: Anderson B. Liddle
  Email: abliddle@crimson.ua.edu
  Course Section: CS 581
- Homework # 1
+ Homework # 3
  Instructions to compile the program: gcc -O hw3.c -o hw3 -O3
- Instructions to run the program: ./hw3 <dimensions> <max_generations> <stagnationcheck boolean 1 or 0>
- Please use this format for testing: ./hw3 1000 1000 0
- GITHUB LINK - https://github.com/andersonbliddle/Fall2024_CS581_HW2
+ Instructions to run the program: ./hw3 <dimensions (int)>
+                                    <max_generations (int)>
+                                    <num_threads (int)>
+                                    <output directory (string)>
+                                    <stagnationcheck (boolean 1 or 0)>
+ Please use this format for testing: ./hw3 1000 1000 16 . 1
+ GITHUB LINK - https://github.com/andersonbliddle/CS_581_HW3 
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -178,7 +182,7 @@ void outputtofile(char *output_file, int** grid, int rows, int cols){
 int main(int argc, char **argv) {
 
     if (argc != 6) {
-        printf("Usage: %s <dimensions (int)> <max_generations (int)> <num_threads (int)> <output file (string)> <stagnationcheck (boolean 1 or 0)>\n", argv[0]);
+        printf("Usage: %s <dimensions (int)> <max_generations (int)> <num_threads (int)> <output directory (string)> <stagnationcheck (boolean 1 or 0)>\n", argv[0]);
         exit(-1);
     }
 
