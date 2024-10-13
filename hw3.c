@@ -219,10 +219,10 @@ int main(int argc, char **argv) {
     int stagnationcheck = atoi(argv[5]);
 
     // Creating threads for later use
-    printf("STARTING num_threads %i\n", num_threads);
+    // printf("STARTING num_threads %i\n", num_threads);
     omp_set_dynamic(0);
     omp_set_num_threads(num_threads);
-    printf("ACTUAL STARTING # of threads: %i\n\n", omp_get_num_threads());
+    // printf("ACTUAL STARTING # of threads: %i\n\n", omp_get_num_threads());
 
     if (!((0 <= ROWS) && (ROWS <= 1000000)) || (!((0 <= COLS) && (COLS <= 1000000)))){
         printf("Dimensions must be between 0 and 1,000,000\n");
