@@ -58,8 +58,8 @@ int **initarray(int **a, int rows, int cols) {
 void printarray(int **array, int rows, int cols) {
   int i,j;
   
-  for (i = 1; i < rows - 1; i++) {
-    for (j = 1; j < cols - 1; j++)
+  for (i = 0; i < rows; i++) {
+    for (j = 0; j < cols; j++)
       if (array[i][j]){
         printf("%i ",array[i][j]);
       }
@@ -100,29 +100,33 @@ int** generation(int** grid, int** lastgrid, int rows, int cols, int num_threads
   int i, j, neighbors, tid;
 
   // printf("Set $ of threads: %i\n", num_threads);
-  // printf("Actual $ of threads: %i\n", omp_get_num_threads());
+  
+  omp_set_num_threads(num_threads);
+  omp_set_dynamic(0);
 
   // Settings for openMP parallelization for the generation for loop
-  #pragma omp parallel \
+  #pragma omp parallel num_threads(num_threads)\
       default (none) \
       private (neighbors, i, j, tid) \
-      shared (grid, lastgrid, rows, cols) \
-      num_threads(num_threads)
+      shared (grid, lastgrid, rows, cols)
 
   // Assigning portions of matrix to individual threads
   tid = omp_get_thread_num();
-  int partition = (rows + 2) / num_threads;
+  // This variable is here as my local machine likes to not create the expected number of threads
+  int actual_threads = omp_get_num_threads();
+  int partition = (rows - 2) / actual_threads;
   int i_start = 1 + tid * partition;
   int i_end = i_start + partition;
-  int reminder = rows % num_threads;
-  if (tid == num_threads - 1) {
+  int reminder = rows % actual_threads;
+  if (tid == actual_threads - 1) {
       i_end = rows - 1;  // Last row is N-1 (since N-1 is the last valid row)
   }
+  // printf("Actual $ of threads: %i\n", omp_get_num_threads());
 
   // printf("TID: %i, Partition: %i, i_end: %i, i_start: %i\n\n", tid, partition, i_end, i_start);
 
   // Iterate through the arrays, checking the previous grid and updating values for new grid
-  for (i = i_start; i <= i_end; i++){
+  for (i = i_start; i < i_end; i++){
     for (j = 1; j < cols - 1; j++){
       // Sum all 8 neighboring values to check if cell should live or die
       neighbors = lastgrid[i - 1][j - 1]
@@ -219,10 +223,10 @@ int main(int argc, char **argv) {
     int stagnationcheck = atoi(argv[5]);
 
     // Creating threads for later use
-    printf("STARTING num_threads %i\n", num_threads);
+    // printf("STARTING num_threads %i\n", num_threads);
     omp_set_dynamic(0);
     omp_set_num_threads(num_threads);
-    printf("ACTUAL STARTING # of threads: %i\n\n", omp_get_num_threads());
+    // printf("ACTUAL STARTING # of threads: %i\n\n", omp_get_num_threads());
 
     if (!((0 <= ROWS) && (ROWS <= 1000000)) || (!((0 <= COLS) && (COLS <= 1000000)))){
         printf("Dimensions must be between 0 and 1,000,000\n");
