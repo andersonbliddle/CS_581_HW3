@@ -86,6 +86,7 @@ void fullprint(int** grid, int** lastgrid, int rows, int cols, int gen){
 // Randomizes the grid with 0s or 1s to create a random initial state
 int** genzero(int** array, int rows, int cols){
   unsigned int seed = time(NULL);
+  //unsigned int seed = 1;
   int i,j;
 
   for (i = 1; i < rows - 1; i++)
