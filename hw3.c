@@ -99,8 +99,8 @@ int** genzero(int** array, int rows, int cols){
 int** generation(int** grid, int** lastgrid, int rows, int cols, int num_threads){
   int i, j, neighbors, tid;
 
-  printf("Set $ of threads: %i\n", num_threads);
-  printf("Actual $ of threads: %i\n", omp_get_num_threads());
+  // printf("Set $ of threads: %i\n", num_threads);
+  // printf("Actual $ of threads: %i\n", omp_get_num_threads());
 
   // Settings for openMP parallelization for the generation for loop
   #pragma omp parallel \
@@ -119,7 +119,7 @@ int** generation(int** grid, int** lastgrid, int rows, int cols, int num_threads
       i_end = rows - 1;  // Last row is N-1 (since N-1 is the last valid row)
   }
 
-  printf("TID: %i, Partition: %i, i_end: %i, i_start: %i\n\n", tid, partition, i_start, i_end);
+  // printf("TID: %i, Partition: %i, i_end: %i, i_start: %i\n\n", tid, partition, i_end, i_start);
 
   // Iterate through the arrays, checking the previous grid and updating values for new grid
   for (i = i_start; i <= i_end; i++){
@@ -261,7 +261,7 @@ int main(int argc, char **argv) {
       // Updating grid based on cell values
       grid = generation(grid, lastgrid, ROWS, COLS, num_threads);
 
-      fullprint(grid, lastgrid, ROWS, COLS, gen);
+      // fullprint(grid, lastgrid, ROWS, COLS, gen);
 
       // Checking for stagnation and breaking loop if grid has not changed
       // Checks stagnationcheck boolean first to ensure function is not run if false
