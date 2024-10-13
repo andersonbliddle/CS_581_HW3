@@ -99,20 +99,8 @@ int** genzero(int** array, int rows, int cols){
 int** generation(int** grid, int** lastgrid, int rows, int cols, int num_threads){
   int i, j, neighbors, tid;
 
-  // printf("Set $ of threads: %i\n", num_threads);
-  
-  omp_set_num_threads(num_threads);
-  omp_set_dynamic(0);
-
-  // Settings for openMP parallelization for the generation for loop
-  #pragma omp parallel num_threads(num_threads)\
-      default (none) \
-      private (neighbors, i, j, tid) \
-      shared (grid, lastgrid, rows, cols)
-
   // Assigning portions of matrix to individual threads
   tid = omp_get_thread_num();
-  // This variable is here as my local machine likes to not create the expected number of threads
   int actual_threads = omp_get_num_threads();
   int partition = (rows - 2) / actual_threads;
   int i_start = 1 + tid * partition;
@@ -121,7 +109,6 @@ int** generation(int** grid, int** lastgrid, int rows, int cols, int num_threads
   if (tid == actual_threads - 1) {
       i_end = rows - 1;  // Last row is N-1 (since N-1 is the last valid row)
   }
-  // printf("Actual $ of threads: %i\n", omp_get_num_threads());
 
   // printf("TID: %i, Partition: %i, i_end: %i, i_start: %i\n\n", tid, partition, i_end, i_start);
 
@@ -222,12 +209,6 @@ int main(int argc, char **argv) {
     // Boolean for turning on and off stagnation check
     int stagnationcheck = atoi(argv[5]);
 
-    // Creating threads for later use
-    // printf("STARTING num_threads %i\n", num_threads);
-    omp_set_dynamic(0);
-    omp_set_num_threads(num_threads);
-    // printf("ACTUAL STARTING # of threads: %i\n\n", omp_get_num_threads());
-
     if (!((0 <= ROWS) && (ROWS <= 1000000)) || (!((0 <= COLS) && (COLS <= 1000000)))){
         printf("Dimensions must be between 0 and 1,000,000\n");
         exit(-1);
@@ -263,6 +244,8 @@ int main(int argc, char **argv) {
       grid = temp;
 
       // Updating grid based on cell values
+      // Settings for openMP parallelization for the generation for loop
+      #pragma omp parallel num_threads(num_threads)
       grid = generation(grid, lastgrid, ROWS, COLS, num_threads);
 
       // fullprint(grid, lastgrid, ROWS, COLS, gen);
